@@ -1,0 +1,300 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@{
+    ViewBag.Title = "客户资产维护";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<style>
+    .greenbk {
+        background-color:#00ff90;
+    }
+    .yellowbk {
+        background-color:#ffd800;
+    }
+    .redbk {
+        background-color:#ff6a00;
+    }
+
+</style>
+
+<script>
+    $(function () {
+        //$.when(gridList()).done(function (data) {
+        //    changecolor();
+        //});
+        gridList();
+        //setTimeout("changecolor()", 300);
+    })
+    function changecolor() {
+        var ids = $("#gridList").getDataIDs();
+        for (var i = 0; i < ids.length; i++) {
+            var rowData = $("#gridList").getRowData(ids[i]);
+            // alert(rowData.Asset_state);
+            switch (rowData.Asset_state) {
+                case "1": $('#' + ids[i]).find("td").addClass("greenbk"); break;
+                case "2": $('#' + ids[i]).find("td").addClass("yellowbk"); break;
+                case "3": $('#' + ids[i]).find("td").addClass("redbk"); break;
+
+            };
+        }
+    }
+    function gridList() {
+         
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/AssetManage/Asset/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                {
+                    label: '资产类型', name: 'AssetType', width: 60, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        switch(cellvalue)
+                        {
+                            case "TOOL":
+                                return "客供模具";
+                                break;
+                            case "AS":
+                                return "客供装配设备";
+                                break;
+                            case "QC":
+                                return "客供测试类";
+                                break;
+                            //case "EN":
+                            //    return "工程类";
+                            //    break;
+                            //case "OT":
+                            //    return "杂项类";
+                            //    break;
+                            default: return  cellvalue;
+                        }
+                    }
+                },
+                 { label: '所属客户', name: 'CustomerName', width: 70, align: 'left' },
+                 { label: '客户联系人', name: 'Customer_Content', width: 70, align: 'left' },
+
+                { label: '客户财产自动编号', name: 'AssetId', width: 120, align: 'left' },
+                { label: 'E Number', name: 'E_Number', width: 80, align: 'left' },
+                { label: '报价单编号', name: 'Quotation', width: 80, align: 'left' },
+                {
+                    label: '要求部门', name: 'RequestDeptId', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.organize[cellvalue] == null ? "" : top.clients.organize[cellvalue].fullname;
+                    }
+                },
+                {
+                    label: '设备类', name: 'AssetCls', Width: 40, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue == 1 ? "力嘉制造" : "客供设备";
+                    }
+                },
+                { label: '已开发票', name: 'InvoiceNo', width: 80, align: 'left' },
+                {
+                    label: '创建人', name: 'F_CreatorUserId', width: 120, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.user[cellvalue] == null ? "" : top.clients.user[cellvalue].fullname;
+                    }
+                },
+                 {
+                     label: '市场填表日期', name: 'MK_inputDate', width: 120, align: 'left',
+                      formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                  },
+
+                { label: '设备名称', name: 'AssetName', width: 80, align: 'left' },
+                {
+                    label: '资产属于部门', name: 'OwnerDeptId', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.organize[cellvalue] == null ? "" : top.clients.organize[cellvalue].fullname;
+                    }
+                },
+                { label: '项目编号', name: 'Project', width: 80, align: 'left' }, 
+                { label: '项目名称', name: 'ProjectDesc', width: 80, align: 'left' }, 
+                { label: '客户设备编号', name: 'AssetCustomerId', width: 80, align: 'left' },
+                { label: '设备出厂编号', name: 'AssetFactoryID', width: 80, align: 'left' },
+                //不要了此字段 { label: '力嘉设备编号', name: 'AssetSN', width: 80, align: 'left' },
+                {
+                    label: '交接日期', name: 'HandOverDate', width: 80, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                    {
+                        label: '工程填表日期', name: 'EN_inputDate', width: 80, align: 'left',
+                        formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                    },
+
+
+                  {
+                      label: '工程录入人员', name: 'F_ENGUserId', width: 80, align: 'left',
+                      formatter: function (cellvalue, options, rowObject) {
+                          return top.clients.user[cellvalue] == null ? "" : top.clients.user[cellvalue].fullname;
+                      }
+                  },
+
+
+                {
+                    label: '使用部门', name: 'RecvDeptId', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.organize[cellvalue] == null ? "" : top.clients.organize[cellvalue].fullname;
+                    }
+
+                },
+                //{ label: '资产图片', name: 'AssetPhoto', width: 80, align: 'left' },
+                { label: '接收状态', name: 'RecvState', width: 80, align: 'left' },
+                { label: '使用及存放位置', name: 'RecvLocation', width: 80, align: 'left' },
+                {
+                    label: '使用部门录入人员', name: 'F_LocationUserId', width: 80, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.user[cellvalue] == null ? "" : top.clients.user[cellvalue].fullname;
+                    }
+                },
+                  {
+                      label: '部门填表日期', name: 'AS_inputDate', width: 80, align: 'left',
+                      formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                  },                 
+
+              { label: '备注', name: 'Remark', width: 200, align: 'left' },
+                { label: 'state', name: 'Asset_state', width: 10, align: 'left', hidden: true },
+            ],
+            pager: "#gridPager",
+            sortname: 'AssetId asc,F_CreatorTime desc',
+            viewrecords: true,
+            gridComplete: function () { changecolor(); }
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val() },
+            }).trigger('reloadGrid');
+        });
+       
+   }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新增资产",
+            url: "/AssetManage/Asset/Form",
+            width: "720px",
+            height: "710px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalOpen({
+            id: "Form",
+            title: "编缉",
+            url: "/AssetManage/Asset/Form?keyValue=" + keyValue,
+            width: "720px",
+            height: "710px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_delete() {
+        var b1 = "@NFine.Code.OperatorProvider.Provider.GetCurrent().IsSystem";
+        if (b1 == "True") {
+            $.deleteForm({
+                url: "/AssetManage/Asset/DeleteForm",
+                param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+                success: function () {
+                    $.currentWindow().$("#gridList").trigger("reloadGrid");
+                }
+            })
+        } else {
+            var deptid = "@NFine.Code.OperatorProvider.Provider.GetCurrent().DepartmentId";
+            var dept = deptid.toLowerCase();
+            if (dept == "5b417e2b-4b96-4f37-8baa-10e5a812d05e" || dept == "9ef5a532-d803-46e7-9d4b-6d61cd6158b6") {
+                $.deleteForm({
+                    url: "/AssetManage/Asset/DeleteForm",
+                    param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+                    success: function () {
+                        $.currentWindow().$("#gridList").trigger("reloadGrid");
+                    }
+                })
+
+            } else {
+                $.modalAlert('warning', '您没有权限删除记录!');
+            }
+
+        }
+    }
+    function btn_details() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalOpen({
+            id: "Details",
+            title: "查看",
+            url: "/AssetManage/Asset/Details?keyValue=" + keyValue,
+            width: "700px",
+            height: "710px",
+            btn: null,
+        });
+    }
+
+    function btn_copy() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalConfirm('你要复制一条记录吗', function (ok) {
+            if (ok)
+            {
+                $.post("/AssetManage/Asset/CopyOne", {key: keyValue},
+                        function (data) {
+                            $("#gridList").trigger("reloadGrid");
+                            $.modalMsg('复制成功', 'success');
+
+                        }
+                    );
+                
+                
+            }
+        });
+    }
+
+
+
+
+
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改资料</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除</a></li>
+                <li><a id="NF-CopyOne" authorize="yes" onclick="btn_copy()"><i class="fa fa-copy"></i>复制</a></li>
+                <li class="split"></li>
+                <li><a id="NF-Details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看</a></li>                
+                
+               
+
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="所属客户/编号/项目/工程名称" style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>
+

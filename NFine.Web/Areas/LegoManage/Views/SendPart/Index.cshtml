@@ -1,0 +1,190 @@
+﻿@{
+    ViewBag.Title = "发送实板";
+    Layout = "~/Views/Shared/_Index.cshtml";
+}
+<script>
+    $(function () {
+        gridList();
+       // alert(top.clients.legopart['4d69c765-6f03-42b5-8aaf-6af9f042c9fc'].partdesc);
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LegoManage/SendPart/GetGridJson",
+            height: $(window).height() - 128,
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                {
+                    label: '模具编号', name: 'PartId', width: 140, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                       
+                        return top.clients.legopart[cellvalue] == null ? "" : top.clients.legopart[cellvalue].partno;
+
+                    }
+                },
+                {
+                    label: '实物描述', name: 'PartId', width: 120, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.legopart[cellvalue] == null ? "" : top.clients.legopart[cellvalue].partdesc;
+                    }
+                },
+                {
+                    label: '发出部门', name: 'FromOrganizeId', width: 100, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.organize[cellvalue] == null ? "" : top.clients.organize[cellvalue].fullname;
+                    }
+                },
+                {
+                    label: '发出位置', name: 'FromPostionId', width: 100, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.position[cellvalue] == null ? "" : top.clients.position[cellvalue].positionname;
+                    }
+                },
+                {
+                    label: '接收部门', name: 'ToOrganizedId', width:100, align: 'left',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return top.clients.organize[cellvalue] == null ? "" : top.clients.organize[cellvalue].fullname;
+                    }
+
+                },
+                {
+                    label: '接收人', name: 'ToUserName', width: 80, align: 'left',
+                   
+                },
+                {
+                    label: '数量', name: 'TransQty', width: 80, align: 'left',
+                    
+                },
+                {
+                    label: '单位', name: 'TransUnit', width: 80, align: 'left',
+                   
+                },
+                {
+                    label: '创建时间', name: 'F_CreatorTime', width: 80, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                 {
+                     label: '已接收', name: 'Received', width: 80, align: 'left',
+                     formatter: function (cellvalue) {
+                         return cellvalue == 1 ? "<i class=\"fa fa-toggle-on\"></i>" : "<i class=\"fa fa-toggle-off\"></i>";
+                     }
+                 },
+                 {
+                     label: '报废原因', name: 'ScrappedState', width: 80, align: 'left',
+                     formatter: function (cellvalue) {
+                         switch (cellvalue) { //1==胶件残缺 2==产品完成测试 3==改模前产品  4==其它（在备注注明）
+                             case 1: return "胶件残缺"; break;
+                             case 2: return "产品完成测试"; break;
+                             case 3: return "改模前产品"; break;
+                             case 4: return "其它"; break;
+                             default: return ""; }
+                     }
+                 } ,
+                 //{label:'接收标志',name:'Received',width:10,align:'left',hidden:true},
+                { label: '备注', name: 'Remark', width: 200, align: 'left' }
+            ],
+            pager: "#gridPager",
+            sortname: 'F_CreatorTime desc',
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { keyword: $("#txt_keyword").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+    function btn_add() {
+        $.modalOpen({
+            id: "Form",
+            title: "新的发送",
+            url: "/LegoManage/SendPart/Form",
+            width: "700px",
+            height: "510px",
+            callBack: function (iframeId) {
+                top.frames[iframeId].submitForm();
+            }
+        });
+    }
+    function btn_edit() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        if ($("#gridList").jqGridRowValue().Received != '<i class="fa fa-toggle-on"></i>') {
+            $.modalOpen({
+                id: "Form",
+                title: "修改发送",
+                url: "/LegoManage/SendPart/Form?keyValue=" + keyValue,
+                width: "700px",
+                height: "510px",
+                callBack: function (iframeId) {
+                    top.frames[iframeId].submitForm();
+                }
+            });
+        } else {
+            $.modalAlert('此项已被接收，不要再次修改!','error');
+        }
+    }
+    function btn_delete() {
+        if ($("#gridList").jqGridRowValue().Received != '<i class="fa fa-toggle-on"></i>') {
+            $.deleteForm({
+                url: "/LegoManage/SendPart/DeleteForm",
+                param: { keyValue: $("#gridList").jqGridRowValue().F_Id },
+                success: function () {
+                    $.currentWindow().$("#gridList").trigger("reloadGrid");
+                }
+            })
+        }else
+            $.modalAlert('此项已被接收，不要随意删除!', 'error');
+    }
+    function btn_details() {
+        var keyValue = $("#gridList").jqGridRowValue().F_Id;
+        $.modalOpen({
+            id: "Details",
+            title: "查看发送",
+            url: "/LegoManage/SendPart/Details?keyValue=" + keyValue,
+            width: "700px",
+            height: "550px",
+            btn: null,
+        });
+    }
+    
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="$.reload()"><span class="glyphicon glyphicon-refresh"></span></a>
+        </div>
+        <div class="btn-group">
+            <a id="NF-add" authorize="yes" class="btn btn-primary dropdown-text" onclick="btn_add()"><i class="fa fa-plus"></i>新建发送</a>
+        </div>
+        <div class="operate">
+            <ul class="nav nav-pills">
+                <li class="first">已选中<span>1</span>项</li>
+                <li><a id="NF-edit" authorize="yes" onclick="btn_edit()"><i class="fa fa-pencil-square-o"></i>修改发送</a></li>
+                <li><a id="NF-delete" authorize="yes" onclick="btn_delete()"><i class="fa fa-trash-o"></i>删除发送</a></li>
+                <li><a id="NF-Details" authorize="yes" onclick="btn_details()"><i class="fa fa-search-plus"></i>查看</a></li>
+                
+              
+            </ul>
+            <a href="javascript:;" class="close"></a>
+        </div>
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td>
+                    <div class="input-group">
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="模具编号.." style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

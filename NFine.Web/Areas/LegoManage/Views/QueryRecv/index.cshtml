@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "接收实板统计导出";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<link href="/Content/js/datepicker/skin/WdatePicker.css" rel="stylesheet" type="text/css">
+<script src="~/Content/js/datepicker/WdatePicker.js"></script>
+
+<script>
+    $(function () {
+        gridList();
+       // alert(top.clients.legopart['4d69c765-6f03-42b5-8aaf-6af9f042c9fc'].partdesc);
+    })
+    function gridList() {
+        var $gridList = $("#gridList");
+        $gridList.dataGrid({
+            url: "/LegoManage/QueryRecv/GetGridJson",
+            height: $(window).height() - 128,
+            rowNum: -1,//显示所有行
+            colModel: [
+                { label: '主键', name: 'F_Id', hidden: true },
+                {
+                    label: '编号', name: 'PartNo', width:140, align: 'left',
+                  
+                },
+                {
+                    label: '描述', name: 'PartDesc', width: 120, align: 'left',
+                    
+                },
+             
+                    {
+                        label: '发送日期', name: 'SendDate', width: 100, align: 'center',
+                        formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+
+                    },
+                       {
+                           label: '来自部门', name: 'FromDept', width: 100, align: 'center',
+
+                       },
+                           {
+                               label: '发出人', name: 'FromUserName', width: 80, align: 'left',
+
+                           },
+
+                {
+                    label: '接收部门', name: 'ReciveDept', width: 100, align: 'left',
+                    
+
+                },
+               
+
+                {
+                    label: '数量', name: 'TransQty', width: 80, align: 'left',
+                    
+                },
+                {
+                    label: '单位', name: 'TransUnit', width: 80, align: 'left',
+                   
+                },
+                   {
+                       label: '位置', name: 'PositionName', width: 80, align: 'left',
+
+                   },
+                   {
+                       label: '单重g', name: 'F_UnitWeight', width: 80, align: 'left',
+
+                   },
+                     {
+                         label: '总重g', name: 'TotalWeight', width: 80, align: 'left',
+
+                     },
+               
+                {
+                    label: '创建时间', name: 'F_CreatorTime', width: 80, align: 'left',
+                    formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
+                },
+                 {
+                     label: '接收处理人', name: 'ReceiveUserName', width: 80, align: 'left',
+
+                 },
+                 
+                { label: '备注', name: 'Remark', width: 200, align: 'left' },
+                { label:"发放标识",name:'SendTransId',width:200,align:'left'},
+            ],
+           //不要分页 pager: "#gridPager",
+            sortname: 'F_CreatorTime desc',
+            viewrecords: true
+        });
+        $("#btn_search").click(function () {
+            $gridList.jqGrid('setGridParam', {
+                postData: { date1:$('#date1').val(),date2:$('#date2').val() ,partno: $("#txt_keyword").val() },
+            }).trigger('reloadGrid');
+        });
+    }
+    
+    function exportxls() {
+        var g1= $('#gridList');
+        var count =g1.jqGrid('getGridParam', 'reccount');
+        var opt = g1.jqGrid('getGridParam', 'postData');
+
+        if (count > 0) {
+            var postData = $("#gridList").jqGrid('getGridParam', 'postData');
+            var form = $("<form>");//定义一个form表单
+            form.attr("style", "display:none");
+            form.attr("target", "");
+            form.attr("method", "get");
+            form.attr("action", "/LegoManage/QueryRecv/ExportXLS");
+            var input1 = $("<input>");
+            input1.attr("type", "hidden");
+            input1.attr("name", "date1");
+            input1.attr("value",opt.date1);
+            var input2 = $("<input>");
+            input2.attr("type", "hidden");
+            input2.attr("name", "date2");
+            input2.attr("value", opt.date2);
+            var input3 = $("<input>");
+            input3.attr("type", "hidden");
+            input3.attr("name", "partno");
+            input3.attr("value", opt.partno);
+            var input4 = $("<input>");
+            input4.attr("type", "hidden");
+            input4.attr("name", "sidx");
+            input4.attr("value", opt.sidx);
+
+            $("body").append(form);//将表单放置在web中
+            form.append(input1);
+            form.append(input2);
+            form.append(input3);
+            form.append(input4);
+
+            form.submit();//表单提交 
+        }
+    }
+    
+    
+</script>
+
+<div class="topPanel">
+    <div class="toolbar">
+        
+        <div class="btn-group">
+             
+            <a class="btn btn-primary" onclick="exportxls()"><span class="glyphicon glyphicon-floppy-save"></span></a>
+        </div>
+        
+        <script>$('.toolbar').authorizeButton()</script>
+    </div>
+    <div class="search">
+        <table>
+            <tr>
+                <td width="168"> <div class="input-group">
+                         <input id="date1" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" placeholder="开始日期" />
+                    </div>
+                 </td>
+                <td width="168">
+                    <div class="input-group">
+                        <input id="date2" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" placeholder="截止日期" />
+                    </div>
+                </td>
+                <td>
+                    <div class="input-group">                      
+                        <input id="txt_keyword" type="text" class="form-control" placeholder="模具编号.." style="width: 200px;">
+                        <span class="input-group-btn">
+                            <button id="btn_search" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button>
+                        </span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<div class="gridPanel">
+    <table id="gridList"></table>
+    <div id="gridPager"></div>
+</div>

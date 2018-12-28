@@ -1,0 +1,400 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script src="~/Content/js/checklight.js"></script>
+
+<script src="/Content/js/jqgrid/jqgrid.min.js"></script>
+<link href="/Content/js/jqgrid/jqgrid.css" rel="stylesheet" />
+<script src="/Content/js/jqgrid/grid.locale-cn.js"></script>
+
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        $.ajax({
+            url: "/AssetManage/Asset/GetFormJson",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                $("#form1").formSerialize(data);
+
+                if (data['AssetCls'] == "1")
+                    $('#AssetCls1').prop('checked', true)
+                else $('#AssetCls0').prop('checked', true);
+
+                $("#form1").find('.form-control,select,input').attr('readonly', 'readonly');
+                $("#form1").find('.form-control,select,input').attr('disabled', 'true');
+                $("#form1").find('div.ckbox label').attr('for', '');
+                initAssetStateGrid(data.F_Id);
+            }
+        });
+        checklight();
+    });
+    function initControl() {
+        $('#F_CreatorUserId').attr('disabled', true);
+        $("#AssetType").bindSelect();
+        $("#RequestDeptId").bindSelect();
+        //$("#OrganizeId").bindSelect({
+        //    url: "/SystemManage/Organize/GetTreeSelectJson"
+        //});
+
+        $data = top.clients.user;
+        for (var key in $data) {
+            $('#F_CreatorUserId,#F_ENGUserId,#F_LocationUserId').append($("<option></option>").val(key).html($data[key]['fullname']));
+
+        }
+     
+    }
+    //===========根据设备AssetId号取出状态栏　
+    var initAssetStateGrid = function (assetId) {
+        var $grid1 = $("#aStateTable");
+        var options = {
+            datatype: "json",
+            caption: "设备状态记录:",
+            //editurl: "/AssetManage/Asset/EditGrid",
+            //recordtext: "View Records {2}",
+            //// autowidth: true,
+            width: 600,
+            rownumbers: true,
+            shrinkToFit: true,
+            autoScroll: false,
+            gridview: true,
+            mtype: "POST",
+            url: "/AssetManage/Asset/GetAssetStateJson",
+            postData: { AssetFId: assetId },
+            height: 'auto',
+            colModel: [
+            { label: '主键', name: 'Id', hidden: true, key: true },
+            { label: '设备Id', name: 'AssetFId', hidden: true },
+            {
+                label: '状态', name: 'state', width: 160, align: 'left', 
+                formatter: function (cellvalue, options, rowObject) {
+                    switch (cellvalue) {
+                        case 1: return "正常运作"; break;
+                        case 2: return "坏机维修中"; break;
+                        case 3: return "坏机等工程/市场确认解决方法"; break;
+                        case 4: return "退回给工程部"; break;
+                        case 5: return "报废"; break;
+                        default: return ""; break;
+
+                    }
+                },               
+            },
+            {
+                label: '记录日期', name: 'Fdate', width: 120, align: 'left', editable: true,
+                formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' },               
+
+            },
+            {
+                label: '备注', name: 'remark', width: 150, align: 'left',  
+                edittype: 'textarea',
+            }
+            ],
+            viewrecords: true,
+            
+            rowNum: -1,
+
+        };
+        $grid1.jqGrid(options);
+        
+    }
+</script>
+ 
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div class="panel panel-info" style="margin:10px 5px">
+            <div class="panel-heading">
+                <h3 class="panel-title">市场部  <span id="mklight" style="color:red"> <i class=" fa fa-bell"></i><i class=" fa fa-bell"></i><i class=" fa fa-bell"></i> </span> </h3>
+            </div>
+            <div id="collapseOne" >
+                <div class="panel-body  ">
+                    <div style="padding-top:0px; margin-right: 30px;">
+                        <table class="form">
+                            <tr>
+                                <th class="formTitle">设备类别</th>
+                                <td class="formValue">
+                                    <select id="AssetType" name="AssetType" class="form-control required">
+                                        <option value="">请选择设备类别</option>
+                                        <option value="TOOL">客供模具</option>
+                                        <option value="AS">客供装配设备</option>
+                                        <option value="QC">客供测试设备</option>
+                                        @*<option value="EN">工程类</option>
+                                            <option value="OT">杂项类</option>*@
+                                    </select>
+                                </td>
+                                <th class="formTitle">客户资产编号<br />（自动编号）</th>
+                                <td class="formValue">
+                                    <input id="AssetId" name="AssetId" type="text" class="form-control required" placeholder="可自动编号" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle">所属客户</th>
+                                <td class="formValue">
+                                    <input id="CustomerName" name="CustomerName" type="text" class="form-control required" placeholder="客户名称" />
+                                </td>
+                                <th class="formTitle">要求部门</th>
+                                <td class="formValue">
+                                    <select id="RequestDeptId" name="RequestDeptId" class="form-control required">
+                                        <option value="">请选择部门</option>
+                                        <option value="5dbaa300-cbb9-4dea-8b1d-9c56f45da379">工程部</option>
+                                        <option value="65e71d04-f25b-48e8-9e4d-d9b68cae04a0">研发部</option>
+                                        <option value="d8ec37e6-abde-4136-a275-f76fd8e94870">模具部</option>
+                                        <option value="3c27a216-72b9-4fb2-bf24-d86e0eac742c">SY注塑部</option>
+                                        <option value="a5338b0c-e244-4335-8ccf-185bdac339aa">SY质检部</option>
+                                        <option value="f8becb91-620c-4353-bf6b-40f11011de77">MC质检部</option>
+                                        <option value="253EDA1F-F158-4F3F-A778-B7E538E052A2">MC生产部</option>
+                                        <option value="c91fb6d2-5d39-4626-a813-bf642aa2854d">MC注塑部</option>
+                                        <option value="a34517a7-c2c5-47d0-b656-fb422c53f4c4">MC注塑QC</option>
+                                        <option value="122fce20-3ed0-4163-988f-ac0a7acb9bd0">采购部</option>
+                                        <option value="96bf600f-19b7-4205-afa5-057a529b45ef">五金加工部</option>
+                                        <option value="f6d74c9a-209a-4843-bd42-2712d9d997c5">VG质检部</option>
+                                        <option value="8a7a7a97-78bc-4e8f-8709-4d3a09b5a274">VG注塑部</option>
+                                        <option value="67ea0a7f-3ced-499a-9e2c-7a1fba30dbac">VG生产部</option>     
+
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle">E Number</th>
+                                <td class="formValue">
+                                    <input id="E_Number" name="E_Number" type="text" class="form-control " />
+                                </td>
+                                <th class="formTitle"><i class="fa fa-circle-o"></i> 客户联络人</th>
+                                <td class="formValue">
+                                    <input id="Customer_Content" name="Customer_Content" type="text" class="form-control " />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle">报价单编号</th>
+                                <td class="formValue">
+                                    <input id="Quotation" name="Quotation" type="text" class="form-control " />
+                                </td>
+                                <th class="formTitle">市场填表日期</th>
+                                <td class="formValue">
+                                    <input id="MK_inputDate" name="MK_inputDate" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle">设备类</th>
+                                <td class="formValue">
+                                    <label style="margin-right:50px"> <input id="AssetCls0" name="AssetCls" type="radio" value="0" />客供设备</label>
+                                    <label> <input id="AsseCls1" name="AssetCls" type="radio" value="1" />力嘉制造</label>
+
+
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th class="formTitle"><i class="fa fa-circle-o"></i> 已开发票 </th>
+                                <td class="formValue">
+                                    <input id="InvoiceNo" name="InvoiceNo" type="text" class="form-control " placeholder="发票.." />
+                                </td>
+                                <th class="formTitle">创建人</th>
+                                <td class="formValue">
+                                    <select id="F_CreatorUserId" name="F_CreatorUserId" class="form-control required ">
+                                        <option value="">选择创建人</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle" valign="top" style="padding-top: 5px;">备注</th>
+                                <td class="formValue" colspan="3">
+                                    <textarea id="MK_Remark" name="MK_Remark" class="form-control" style="height: 60px;"></textarea>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info" style="margin:10px 5px">
+            <div class="panel-heading">
+                <h3 class="panel-title">工程部/研发部 录入 <span id="enlight" style="color:red"> <i class=" fa fa-bell"></i><i class=" fa fa-bell"></i><i class=" fa fa-bell"></i> </span>  </h3>
+            </div>
+            <div id="collapseTwo" >
+                <div class="panel-body">
+                    <div style="padding-top:0px; margin-right: 30px;">
+                        <table class="form">
+                            <tr>
+                                <th class="formTitle">设备名称</th>
+                                <td class="formValue">
+                                    <input id="AssetName" name="AssetName" type="text" class="form-control required" placeholder="请输入客户资产名称" />
+                                </td>
+                                <th class="formTitle">保管部门</th>
+                                <td class="formValue">
+                                    <select id="OwnerDeptId" name="OwnerDeptId" class="form-control required">
+                                        <option value="">请选择部门</option>
+                                        <option value="5dbaa300-cbb9-4dea-8b1d-9c56f45da379">工程部</option>
+                                        <option value="65e71d04-f25b-48e8-9e4d-d9b68cae04a0">研发部</option>
+                                        <option value="d8ec37e6-abde-4136-a275-f76fd8e94870">模具部</option>
+                                        <option value="3c27a216-72b9-4fb2-bf24-d86e0eac742c">SY注塑部</option>
+                                        <option value="a5338b0c-e244-4335-8ccf-185bdac339aa">SY质检部</option>
+                                        <option value="f8becb91-620c-4353-bf6b-40f11011de77">MC质检部</option>
+                                        <option value="253EDA1F-F158-4F3F-A778-B7E538E052A2">MC生产部</option>
+                                        <option value="c91fb6d2-5d39-4626-a813-bf642aa2854d">MC注塑部</option>
+                                        <option value="a34517a7-c2c5-47d0-b656-fb422c53f4c4">MC注塑QC</option>
+                                        <option value="122fce20-3ed0-4163-988f-ac0a7acb9bd0">采购部</option>
+                                        <option value="96bf600f-19b7-4205-afa5-057a529b45ef">五金加工部</option>
+                                        <option value="f6d74c9a-209a-4843-bd42-2712d9d997c5">VG质检部</option>
+                                        <option value="8a7a7a97-78bc-4e8f-8709-4d3a09b5a274">VG注塑部</option>
+                                        <option value="67ea0a7f-3ced-499a-9e2c-7a1fba30dbac">VG生产部</option>     
+
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle">项目编号</th>
+                                <td class="formValue">
+                                    <div style="width:75%;float:left">
+                                        <input id="Project" name="Project" type="text" class="form-control " />
+                                    </div>
+                                    <div style="float:right"><input type="checkbox" id="AssetStandard" name="AssetStandard" />通用</div>
+                                </td>
+
+                                <th class="formTitle"><i class="fa fa-circle-o"></i> 客户设备编号</th>
+                                <td class="formValue">
+                                    <input id="AssetCustomerId" name="AssetCustomerId" type="text" class="form-control " />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle">项目名称</th>
+                                <td class="formValue">
+                                    <input id="ProjectDesc" name="ProjectDesc" type="text" class="form-control " />
+                                </td>
+                              
+                                <th class="formTitle"><i class="fa fa-circle-o"></i> 设备厂家编号</th>
+                                <td class="formValue">
+                                    <input id="AssetFactoryID" name="AssetFactoryID" type="text" class="form-control " />
+                                </td>
+                            </tr>
+                            <tr>
+                                @*<th class="formTitle">力嘉设备编号</th>
+                                <td class="formValue">
+                                    <input id="AssetSN" name="AssetSN" type="text" class="form-control " />
+                                </td>*@
+                                <th class="formTitle">工程创建人</th>
+                                <td class="formValue">
+                                    <select id="F_ENGUserId" name="F_ENGUserId" class="form-control required ">
+                                        <option value="">选择创建人</option>
+                                    </select>
+                                </td>
+                              
+                                <th class="formTitle">工程填表日期</th>
+                                <td class="formValue">
+                                    <input id="EN_inputDate" name="EN_inputDate" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" />
+                                </td>
+
+                            </tr>
+                            <tr>
+                                <th></th>
+                                <td></td>
+                                <th class="formTitle">部门接收日期</th>
+                                <td class="formValue">
+                                    <input id="HandOverDate" name="HandOverDate" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" />
+                                </td>
+
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info" style="margin:10px 5px">
+            <div class="panel-heading">
+                <h3 class="panel-title">使用部门 <span id="aslight" style="color:red"> <i class=" fa fa-bell"></i><i class=" fa fa-bell"></i><i class=" fa fa-bell"></i> </span></h3>
+            </div>
+            <div id="collapseThree"  >
+                <div class="panel-body">
+                    <div style="padding-top:0px; margin-right: 30px;">
+                        <table class="form">
+                            <tr>
+                                <th class="formTitle">使用及存放位置</th>
+                                <td class="formValue">
+                                    <input id="RecvLocation" name="RecvLocation" type="text" class="form-control " />
+                                </td>
+                                <th class="formTitle">接收确认</th>
+                                <td class="formValue">
+                                    <input id="F_EnabledMark" name="F_EnabledMark" type="checkbox" class="form-control " />
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="formTitle">使用部门</th>
+                                <td class="formValue">
+                                    <select id="RecvDeptId" name="RecvDeptId" class="form-control required">
+                                        <option value="">请选择部门</option>
+                                        <option value="5dbaa300-cbb9-4dea-8b1d-9c56f45da379">工程部</option>
+                                        <option value="65e71d04-f25b-48e8-9e4d-d9b68cae04a0">研发部</option>
+                                        <option value="d8ec37e6-abde-4136-a275-f76fd8e94870">模具部</option>
+                                        <option value="3c27a216-72b9-4fb2-bf24-d86e0eac742c">SY注塑部</option>
+                                        <option value="a5338b0c-e244-4335-8ccf-185bdac339aa">SY质检部</option>
+                                        <option value="f8becb91-620c-4353-bf6b-40f11011de77">MC质检部</option>
+                                        <option value="253EDA1F-F158-4F3F-A778-B7E538E052A2">MC生产部</option>
+                                        <option value="c91fb6d2-5d39-4626-a813-bf642aa2854d">MC注塑部</option>
+                                        <option value="a34517a7-c2c5-47d0-b656-fb422c53f4c4">MC注塑QC</option>
+                                        <option value="122fce20-3ed0-4163-988f-ac0a7acb9bd0">采购部</option>
+                                        <option value="96bf600f-19b7-4205-afa5-057a529b45ef">五金加工部</option>
+                                        <option value="f6d74c9a-209a-4843-bd42-2712d9d997c5">VG质检部</option>
+                                        <option value="8a7a7a97-78bc-4e8f-8709-4d3a09b5a274">VG注塑部</option>
+                                        <option value="67ea0a7f-3ced-499a-9e2c-7a1fba30dbac">VG生产部</option>     
+                                    </select>
+                                </td>
+                                <th class="formTitle">接收日期</th>
+                                <td class="formValue">
+                                    <input id="AS_inputDate" name="AS_inputDate" type="text" class="form-control input-wdatepicker" onclick="WdatePicker()" />
+                                </td>
+                                @*<th class="formTitle">上传图片</th>
+                                    <td class="formValue">
+                                            <input id="AssetPhoto" name="AssetPhoto" type="text" class="form-control " placeholder="上传图片" style="float:left;width:69% " />
+                                        <a href="javascript:$('#upload').trigger('click').void(0);;" id="upload" class="files btn btn-info" style="float:left; ">上传..</a>
+                                        @*<span style=" float:left" id="upload"></span>
+
+                                            <span class="uploading" style="display:none">上传中...</span>
+
+                                                                </td>*@
+                            </tr>
+
+                            <tr>
+                                <th class="formTitle">接收人</th>
+                                <td class="formValue">
+                                    <select id="F_LocationUserId" name="F_LocationUserId" class="form-control required ">
+                                        <option value="">选择接收人</option>
+                                    </select>
+                                </td>
+                                <th class="formTitle">接收状态</th>
+                                <td class="formValue">
+                                    <select id="RecvState" name="RecvState" class="form-control required ">
+                                        <option>请选择</option>
+                                        <option value=1>合格</option>
+                                        <option value=2>让步接收(必须填写原因)</option>
+                                        <option value=3>拒收/退回(必须填写原因)</option>
+
+                                    </select>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <th class="formTitle" valign="top" style="padding-top: 5px;">备注</th>
+                                <td class="formValue" colspan="3">
+                                    <textarea id="Remark" name="Remark" class="form-control" style="height: 60px;"></textarea>
+                                </td>
+                            </tr>
+                        </table>
+                        @*==================================================================================*@
+                        <div class="gridPanel">
+                            <br />
+                            <table id="aStateTable"></table>
+                            @*<div id="pageState"></div>*@
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>

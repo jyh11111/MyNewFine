@@ -1,0 +1,241 @@
+﻿@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script src="~/Content/js/checklight.js"></script>
+
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+        $.ajax({
+            url: "/AssetManage/Asset/GetFormJson",
+            data: { keyValue: keyValue },
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                $("#form1").formSerialize(data);
+                $("#form1").find('.form-control,select,input').attr('readonly', 'readonly');
+                $("#form1").find('div.ckbox label').attr('for', '');
+                var dept = $('#RequestDeptId').val();
+                $('#RequestDeptId').val(top.clients.organize[dept].fullname);
+                var renid = $('#F_CreatorUserId').val();
+                $('#F_CreatorUserId').val(top.clients.user[renid].fullname);
+                var dept2 = $('#OwnerDeptId').val();
+                $('#OwnerDeptId').val(top.clients.organize[dept2].fullname);
+                var renid = $('#F_ENGUserId').val();
+                $('#F_ENGUserId').val(top.clients.user[renid].fullname);
+                var dept = $('#RecvDeptId').val();
+                $('#RecvDeptId').val(top.clients.organize[dept].fullname);
+                var renid = $('#F_LocationUserId').val();
+                $('#F_LocationUserId').val(top.clients.user[renid].fullname);
+            }
+        });
+        checklight();
+    });
+    function initControl() {
+     
+    }
+</script>
+<style>
+    .hrmore {
+        height: 20px;
+        width: 50px;
+        position: relative;
+        /*left: 50%;*/
+        top: -30px;     
+        
+    }
+</style>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li><a href="javascript:void()">扩展信息</a></li>*@
+            @*<li><a href="javascript:void()">登录日志</a></li>
+            <li><a href="javascript:void()">操作日志</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                   
+                    <td colspan="4" align="center" >市场部 <hr />
+                    <span id="mklight" class="hrmore" style="color:red;font-size:large"> <i class=" fa fa-bell"></i><i class=" fa fa-bell"></i><i class=" fa fa-bell"></i> </span></td>
+                </tr>
+                <tr>
+                    <th class="formTitle">资产类型</th>
+                    <td class="formValue">
+                        <input id="AssetType" name="AssetType" type="text" class="form-control" />
+                    </td>
+                    <th class="formTitle">自动编号</th>
+                    <td class="formValue">
+                        <input id="AssetId" name="AssetId" type="text" class="form-control" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">所属客户</th>
+                    <td class="formValue">
+                        <input id="CustomerName" type="text" name="CustomerName" class="form-control" />
+                    </td>
+                    <th class="formTitle">要求部门</th>
+                    <td class="formValue">
+                        <input id="RequestDeptId" type="text" name="RequestDeptId" class="form-control" />
+                    </td>
+                </tr> 
+                <tr>
+                    <th class="formTitle">E Number</th>
+                    <td class="formValue">
+                        <input id="E_Number" name="E_Number" type="text" class="form-control " />
+                    </td>
+                    <th class="formTitle">客户联络人<i class="fa fa-star-o"></i></th>
+                    <td class="formValue">
+                        <input id="Customer_Content" name="Customer_Content" type="text" class="form-control " />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">报价单编号</th>
+                    <td class="formValue">
+                        <input id="Quotation" type="text" name="Quotation" class="form-control" />
+                    </td>
+                    <th class="formTitle">市场填表日期</th>
+                    <td class="formValue">
+                        <input id="MK_inputDate" type="text" name="MK_inputDate" class="form-control" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">已开发票</th>
+                    <td class="formValue">
+                        <input id="InvoiceNo" name="InvoiceNo" type="text" class="form-control " placeholder="发票.." />
+                    </td>
+                    <th class="formTitle">创建人</th>
+                    <td class="formValue">
+                        <input id="F_CreatorUserId" name="F_CreatorUserId" type="text" class="form-control " />                        
+                    </td>
+                </tr>               
+                <tr>                                  
+                    <td class="formValue" colspan="4" align="center">
+                        <hr />
+                        <span class="hrmore" id="enlight" style="color: red; font-size: large"> <i class=" fa fa-bell"></i><i class=" fa fa-bell"></i><i class=" fa fa-bell"></i> </span> 
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">设备名称</th>
+                    <td class="formValue">
+                        <input id="AssetName" name="AssetName" type="text" class="form-control"  />
+                    </td>
+                    <th class="formTitle">所属部门</th>
+                    <td class="formValue">
+                        <input id="OwnerDeptId" name="OwnerDeptId" type="text" class="form-control" />                           
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">所属项目</th>
+                    <td class="formValue">
+                        <div style="width:80%;float:left">
+                            <input id="Project" name="Project" type="text" class="form-control " />
+                        </div>
+                        <div style="float:right"><input type="checkbox" id="AssetStandard" name="AssetStandard" />通用</div>
+                    </td>
+                    <th class="formTitle">客户设备编号</th>
+                    <td class="formValue">
+                        <input id="AssetCustomerId" name="AssetCustomerId" type="text" class="form-control " />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">力嘉设备号码</th>
+                    <td class="formValue">
+                        <input id="AssetSN" name="AssetSN" type="text" class="form-control " />
+                    </td>
+                    <th class="formTitle">设备厂家编号</th>
+                    <td class="formValue">
+                        <input id="AssetFactoryID" name="AssetFactoryID" type="text" class="form-control " />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">工程创建人</th>
+                    <td class="formValue">
+                        <input id="F_ENGUserId" name="F_ENGUserId" type="text" class="form-control " />                            
+                    </td>
+                    <th class="formTitle">部门接收日期</th>
+                    <td class="formValue">
+                        <input id="HandOverDate" name="HandOverDate" type="text" class="form-control"  />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle"> </th>
+                    <td class="formValue"></td>
+                    <th class="formTitle">工程填表日期</th>
+                    <td class="formValue">
+                        <input id="EN_inputDate" name="EN_inputDate" type="text" class="form-control input-wdatepicker"  />
+                    </td>
+                </tr>
+                <tr>
+                    <td class="formValue" colspan="4" align="center">
+                        <hr />
+                        <span class="hrmore" id="aslight" style="color: red; font-size: large"> <i class=" fa fa-bell"></i><i class=" fa fa-bell"></i><i class=" fa fa-bell"></i></span> 
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">使用部门</th>
+                    <td class="formValue">
+                        <select id="RecvDeptId" name="RecvDeptId" class="form-control required">
+                            <option value="">请选择部门</option>
+                            <option value="5dbaa300-cbb9-4dea-8b1d-9c56f45da379">工程部</option>
+                            <option value="d8ec37e6-abde-4136-a275-f76fd8e94870">模具部</option>
+                            <option value="253EDA1F-F158-4F3F-A778-B7E538E052A2">生产部</option>
+                            <option value="3c27a216-72b9-4fb2-bf24-d86e0eac742c">注塑部</option>
+                            <option value="a5338b0c-e244-4335-8ccf-185bdac339aa">质检部</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">录入日期</th>
+                    <td class="formValue">
+                        <input id="AS_inputDate" name="AS_inputDate" type="text" class="form-control input-wdatepicker" onclick="WdatePicker()" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">接收部门</th>
+                    <td class="formValue">
+                        <input id="RecvDeptId" name="RecvDeptId" type="text" class="form-control"/>                            
+                    </td>
+                    <th class="formTitle">上传图片</th>
+                    <td class="formValue">
+                        <input id="AssetPhoto" name="AssetPhoto" type="text" class="form-control " />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">接收后存放位置</th>
+                    <td class="formValue">
+                        <input id="RecvLocation" name="RecvLocation" type="text" class="form-control " />
+                    </td>
+                    <th class="formTitle">接收确认</th>
+                    <td class="formValue">
+                        <input id="F_EnabledMark" name="F_EnabledMark" type="checkbox" class="form-control " />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">接收人</th>
+                    <td class="formValue">
+                        <input id="F_LocationUserId" name="F_LocationUserId" class="form-control "/>                            
+                    </td>
+                    <th class="formTitle">接收状态</th>
+                    <td class="formValue">
+                        <select id="RecvState" name="RecvState" class="form-control required ">
+                           
+                            <option value="1">合格</option>
+                            <option value="2">让步接收</option>
+                            <option value="3">拒收/退回</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" valign="top" style="padding-top: 5px;">备注</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="Remark" name="Remark" class="form-control" style="height: 60px;"></textarea>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>

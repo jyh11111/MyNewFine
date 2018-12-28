@@ -1,0 +1,235 @@
+﻿@inherits System.Web.Mvc.WebViewPage
+@{
+    ViewBag.Title = "Form";
+    Layout = "~/Views/Shared/_Form.cshtml";
+}
+<script>
+    var keyValue = $.request("keyValue");
+    $(function () {
+        initControl();
+       
+        var usrcode = "@NFine.Code.OperatorProvider.Provider.GetCurrent().UserCode";
+        var usrname = "@NFine.Code.OperatorProvider.Provider.GetCurrent().UserName";
+        var isAdmin = "@NFine.Code.OperatorProvider.Provider.GetCurrent().IsSystem";
+        $('#FromUserName').val(usrname);
+        if (isAdmin=="False") {
+            $("#FromOrganizeId").attr('disabled', 'disabled');
+            $("#FromOrganizeId").val(top.clients.departmentid);
+            $("#FromOrganizeId").trigger("change");
+        }
+        $('#SendDate').val($.formatDate('yyyy-MM-dd', new Date()));
+        if (!!keyValue) {
+            $.ajax({
+                url: "/LegoManage/SendPart/GetFormJson",
+                data: { keyValue: keyValue },
+                dataType: "json",
+                async: false,
+                success: function (data) {
+                    $("#form1").formSerialize(data);
+                    if (data.ToOrganizedId=="b54527e4-719e-4722-bb63-94c1b6a4fb1d")//报废
+                            $('#scraptr').show();
+                        else $('#scraptr').hide();
+
+                }
+            });
+            var partId = $('#PartId').val();
+            if (!!partId)
+            { $('#PartDesc').val(top.clients.legopart[partId].partdesc);}
+        }
+        $("#PartId").change(function () {
+            partid = $(this).children('option:selected').val();
+            $.ajax({
+                url: "/LegoManage/Part/GetFormJson",
+                data: { keyValue: partid },
+                datType: "json",
+                async: false,
+                success: function (data) {
+                    var partObj = $.parseJSON(data);                    
+                  if(partObj){
+                        $("#PartDesc").val(partObj.PartDesc);
+                  } else $("#PartDesc").val('');
+
+                }
+
+
+            });
+
+
+        });
+
+        $("#btnsearchpart").click(function () {
+            //$.modalAlert("寻找Part", "warning");
+            $.modalOpen(
+            {
+                id: "searchpart",
+                title: "寻找Part",
+                url: "/LegoManage/Part/SelectOnePart",
+                width: "700px",
+                height: "510px",
+                btn:null,
+                callBack: function (iframeId) {
+                    //alert("确认");
+                   
+                    //top.frames[iframeId]
+                }
+            });
+
+        })
+        $('#ToOrganizedId').change(setscaptrvisiable);
+    
+    });
+    var setscaptrvisiable = function () {
+        var p1 = $(this).children('option:selected').val();
+        if (p1 == "b54527e4-719e-4722-bb63-94c1b6a4fb1d")//报废
+            $('#scraptr').show();
+        else $('#scraptr').hide();
+    };
+    function initControl() {
+       
+        $("#FromPostionId").bindSelect(
+            {
+                url: "/LegoManage/Position/GetSelectJson",
+                id: "F_Id",
+                text: "PositionName",
+            }
+            )
+        $("#FromOrganizeId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson"
+        });
+        $("#ToOrganizedId").bindSelect({
+            url: "/SystemManage/Organize/GetTreeSelectJson",
+        });
+
+        $("#PartId").bindSelect(
+            {
+                url: "/LegoManage/Part/GetSelectJson",
+                id: "F_Id",
+                text: "PartNo",
+            }
+            );
+      
+    }
+    function submitForm() {
+        if (!$('#form1').formValid()) {
+            return false;
+        }
+        $.submitForm({
+            url: "/LegoManage/SendPart/SubmitForm?keyValue=" + keyValue,
+            param: $("#form1").formSerialize(),
+            success: function () {
+                $.currentWindow().$("#gridList").trigger("reloadGrid");
+            }
+        })
+    }
+
+
+</script>
+<form id="form1">
+    <div style="margin-top: 10px; margin-left: 10px; margin-right: 10px;">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#">基本信息</a></li>
+            @*<li ><a href="#">扩展信息</a></li>*@
+        </ul>
+        <div style="padding-top: 20px; margin-right: 30px;">
+            <table class="form">
+                <tr>
+                    <th class="formTitle">发出位置</th>
+                    <td class="formValue">
+                        <select id="FromPostionId" name="FromPostionId" class="form-control" required>
+                            <option value="">==请选择==</option>
+                        </select>
+
+                    </td>
+                    <th class="formTitle">发出部门</th>
+                    <td class="formValue">
+                        <select id="FromOrganizeId" name="FromOrganizeId" class="form-control required">
+                            <option value="">==请选择==</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">接收部门</th>
+                    <td class="formValue">
+                        <select id="ToOrganizedId" name="ToOrganizedId" class="form-control required"></select>
+                    </td>
+                    <th class="formTitle">接收人</th>
+                    <td class="formValue">
+                        <input id="ToUserName" name="ToUserName" type="text" class="form-control required"/>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">模具编号</th>
+                    <td class="formValue">   
+                        <div style="width:80%;float:left" >
+                            <select id="PartId" name="PartId" class="form-control">
+                                <option value="">==请选择==</option>
+                            </select>
+                            
+                        </div>
+                      <div style="float:right"><button id="btnsearchpart" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button> </div> 
+                        
+                        
+                        
+                    </td>
+                   
+                    <th class="formTitle">描述</th>
+                    <td class="formValue">
+                        <input id="PartDesc" name="PartDesc" type="text" class="form-control " disabled="disabled" />
+                    </td>
+                </tr>
+      
+                <tr>
+                    <th class="formTitle">数量</th>
+                    <td class="formValue">
+                        <input id="TransQty"type="text" name="TransQty" class="form-control required"/>                         
+                        
+                    </td>
+                    <th class="formTitle">单位</th>
+                    <td class="formValue">
+                        <input id="TransUnit" name="TransUnit" class="form-control required" />                             
+                        
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">是否已被接收</th>
+                    <td class="formValue"  >
+                        <div class="ckbox">
+                            <input id="Received" name="Received" type="checkbox" disabled="disabled"><label for="Received">被接收</label>
+                        </div>
+                    </td>
+                    <th class="formTitle">发送时时</th>
+                    <td class="formValue">
+                        <input id="SendDate" name="SendDate" type="text" class="form-control input-wdatepicker" onfocus="WdatePicker()" />
+                    </td>
+                </tr>
+                <tr id="scraptr">
+                    <th class="formTitle">报废原因</th>
+                    <td class="formValue">
+                        <select id="ScrappedState" name="ScrappedState" class="form-control"  >
+                            <option value="">==请选择==</option>
+                            <option value="1">胶料残缺</option>
+                            <option value="2">产品完成测试</option>
+                            <option value="3">改模前产品</option>
+                            <option value="4">其它(请填写原因)</option>
+                        </select>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle" valign="top" style="padding-top: 5px;">备注
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="Remark" name="Remark" class="form-control" style="height: 60px;"></textarea>
+                    </td>
+                </tr>
+                <tr><th></th>
+                    <td></td>
+                    <th class="formTitle" >发出人</th>
+                    <td class="formValue" >
+                        <input disabled="disabled" id="FromUserName" name="FromUserName" class="form-control" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</form>
