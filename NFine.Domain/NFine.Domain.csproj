@@ -43,6 +43,8 @@
     <Compile Include="01 Infrastructure\IDeleteAudited.cs" />
     <Compile Include="01 Infrastructure\IEntity.cs" />
     <Compile Include="01 Infrastructure\IModificationAudited.cs" />
+    <Compile Include="02 ViewModel\CountViewModel.cs" />
+    <Compile Include="02 ViewModel\PostionPartModel.cs" />
     <Compile Include="02 ViewModel\QueryPartModel.cs" />
     <Compile Include="02 ViewModel\ReciveTransView.cs" />
     <Compile Include="03 Entity\AssetManage\AssetEntity.cs" />

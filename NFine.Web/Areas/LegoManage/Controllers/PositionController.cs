@@ -16,7 +16,7 @@ namespace NFine.Web.Areas.LegoManage.Controllers
         // GET: /LegoManage/Position/
 
         private PositionApp postionApp = new PositionApp();
-        //  private PostionPartApp partApp = new PostionPartApp();
+       private PostionPartApp postionPartApp = new PostionPartApp();
         private SendTransApp sendApp = new SendTransApp();
         private ReceiveTransApp recvApp = new ReceiveTransApp();
         [HttpGet]
@@ -105,6 +105,25 @@ namespace NFine.Web.Areas.LegoManage.Controllers
 
         }
 
+        
+        public ActionResult SelectPositionPart()
+        {
+            return View();
+        }
+        [HttpGet]
+        [HandlerAjaxOnly]
+        public ActionResult GetPostionPart(Pagination pagination, string keyword ,string postionId) {
+            var data = new
+            {
+                rows = postionPartApp.GetList(pagination,keyword, postionId),
+                total = pagination.total,
+                page = pagination.page,
+                records = pagination.records
+            };
+            
+             return Content(data.ToJson());
+          
+        }
 
     }
 }

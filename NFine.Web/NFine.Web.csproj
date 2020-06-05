@@ -462,6 +462,7 @@
     <Content Include="Views\Shared\_LayoutIndex.cshtml" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Areas\LegoManage\Views\Position\SelectPositionPart.cshtml" />
     <None Include="Configs\database.config.old" />
     <Content Include="Configs\log4net.config" />
     <Content Include="Configs\system.config" />

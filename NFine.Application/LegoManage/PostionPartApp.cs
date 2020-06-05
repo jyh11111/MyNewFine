@@ -11,14 +11,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
- 
- 
- 
+
+
+
 using NFine.Domain.IRepository.LegoManage;
 using NFine.Repository.LegoManage;
 using NFine.Domain.Entity.LegoManage;
 using NFine.Code;
 using System.Linq.Expressions;
+using NFine.Domain.ViewModel;
+using NFine.Data;
+ 
+
 namespace NFine.Application.LegoManage
 {	
 	/// <summary>
@@ -26,9 +30,11 @@ namespace NFine.Application.LegoManage
 	/// </summary>	
 	public class PostionPartApp
 	{
-	    private IPostionPartRepository service=new PostionPartRepository();
-
-		public List<PostionPartEntity> GetList()
+         
+        public IPostionPartRepository service=new PostionPartRepository();
+        public LegoPartApp partApp = new LegoPartApp();
+        public NFineDbContext dbcontext = new NFineDbContext();
+        public List<PostionPartEntity> GetList()
         {
             return service.IQueryable().ToList();
         }
@@ -71,6 +77,31 @@ namespace NFine.Application.LegoManage
            
              return service.FindList(predicate, pagination);
            
+        }
+        public List<PostionPartModel> GetList(Pagination pagination, string keyword, string postionId ) {
+
+                
+           // var curuser = OperatorProvider.Provider.GetCurrent().UserCode;
+            var deptid = OperatorProvider.Provider.GetCurrent().DepartmentId;          
+
+
+            var sql = @"select A.*,P.partno,P.PartDesc ,P.remark,U_Position.PositionName from U_PostionPart A inner join U_LegoPart P on A.PartId = P.F_id  inner join U_Position on U_Position.F_Id = A.PositionId where 1=1 ";
+            if (!string.IsNullOrWhiteSpace(postionId))
+            { sql += " and A.PositionId='" + postionId.Trim() + "'"; }
+            if (!string.IsNullOrWhiteSpace(keyword)) {
+                sql += " and P.partno like '%" + keyword.Trim() + "%' ";
+            }
+            var countsql = "select count(1) as total from (" + sql + ") tmp";
+            int count = 0;
+            List<CountViewModel> cv = service.FindList2<CountViewModel>(countsql);
+            if (cv != null && cv.Count > 0) {
+                count = cv[0].total;
+                pagination.records = count;
+            } 
+            var pv = service.FindList2<PostionPartModel>(sql);
+
+            return pv;
+
         }
 
     }

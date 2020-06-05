@@ -1,33 +1,31 @@
 ﻿@inherits System.Web.Mvc.WebViewPage
 @{
-    ViewBag.Title = "选择实板";
+    ViewBag.Title = "选择库存实板";
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 
  <script>
      $(function () {
          gridList();
-        // alert(getUrlParams("postionId"))
+        
      })
      function gridList() {
          var $gridList = $("#gridList");
          $gridList.dataGrid({
-             url: "/LegoManage/Part/GetGridJson",
+             url: "/LegoManage/Position/GetPostionPart?postionId="+getUrlParams("postionId"),
+           //  url: "/LegoManage/Part/GetGridJson",
              height: $(window).height() - 128,
              colModel: [
-                 { label: '主键', name: 'F_Id', hidden: true },
+                 { label: '主键', name: 'PartId', hidden: true },
                  { label: '模具编号', name: 'PartNo', width: 120, align: 'left' },
                  { label: '描述', name: 'PartDesc', width: 200, align: 'left' },
-                 { label: '单位', name: 'PartUnit', width: 80, align: 'left' },
-                 {
-                     label: '创建时间', name: 'F_CreatorTime', width: 120, align: 'left',
-                     formatter: "date", formatoptions: { srcformat: 'Y-m-d', newformat: 'Y-m-d' }
-                 },
-                 { label: '创建人', name: 'F_CreatorUserId', width: 120, align: 'left' },
-                 { label: '备注', name: 'Remark', width: 200, align: 'left' },
+                 { label: '现存数量', name: 'Qty', width: 80, align: 'left' },
+                  
+                 { label: '库位名称', name: 'PositionName', width: 120, align: 'left' },
+                 { label: '备注', name: 'remark', width: 200, align: 'left' },
              ],
              pager: "#gridPager",
-             sortname: 'PartNo asc,F_CreatorTime desc',
+             sortname: 'F_Id asc',
              viewrecords: true
          });
          $("#btn_search").click(function () {
@@ -38,7 +36,7 @@
      }
      function btn_Select()
      {
-         var key = $("#gridList").jqGridRowValue().F_Id;
+         var key = $("#gridList").jqGridRowValue().PartId;
          if (!key)
              $.modalAlert('请先选择一行数据!')
          else

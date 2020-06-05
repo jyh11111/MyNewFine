@@ -26,7 +26,7 @@
                 async: false,
                 success: function (data) {
                     $("#form1").formSerialize(data);
-                    if (data.ToOrganizedId=="b54527e4-719e-4722-bb63-94c1b6a4fb1d")//报废
+                    if (data.ToOrganizedId == "b54527e4-719e-4722-bb63-94c1b6a4fb1d" || data.ToOrganizedId == "534b70d3-b1da-4be0-baf4-0c288602dfe1" || data.ToOrganizedId == "8e9e6e66-f851-484b-8afb-8df107372904")//报废
                             $('#scraptr').show();
                         else $('#scraptr').hide();
 
@@ -63,7 +63,8 @@
             {
                 id: "searchpart",
                 title: "寻找Part",
-                url: "/LegoManage/Part/SelectOnePart",
+                 
+                url: "/LegoManage/Part/SelectOnePart", //?postionId=" + $('#FromPostionId').val(),
                 width: "700px",
                 height: "510px",
                 btn:null,
@@ -75,12 +76,32 @@
             });
 
         })
+        $('#btnsearchpart2').click(function () {
+            if (!$('#FromPostionId').val()) {
+                $.modalAlert("请先选择发出位置", "warning")
+                return;
+            }
+            $.modalOpen({
+                id: "searchpart2",
+                title: "寻找库存Part",
+                url: "/LegoManage/Position/SelectPositionPart?postionId=" + $('#FromPostionId').val(),
+                width: "700px",
+                height: "510px",
+                btn: null,
+                callBack: function (iframeId) {
+                    //alert("确认");
+
+                    //top.frames[iframeId]
+                }
+
+            });
+        })
         $('#ToOrganizedId').change(setscaptrvisiable);
     
     });
     var setscaptrvisiable = function () {
         var p1 = $(this).children('option:selected').val();
-        if (p1 == "b54527e4-719e-4722-bb63-94c1b6a4fb1d")//报废
+        if (p1 == "b54527e4-719e-4722-bb63-94c1b6a4fb1d" || p1 == "534b70d3-b1da-4be0-baf4-0c288602dfe1" || p1 == "8e9e6e66-f851-484b-8afb-8df107372904")//报废与碎料
             $('#scraptr').show();
         else $('#scraptr').hide();
     };
@@ -160,13 +181,17 @@
                 <tr>
                     <th class="formTitle">模具编号</th>
                     <td class="formValue">   
-                        <div style="width:80%;float:left" >
+                        <div style="width:60%;float:left" >
                             <select id="PartId" name="PartId" class="form-control">
                                 <option value="">==请选择==</option>
                             </select>
                             
                         </div>
-                      <div style="float:right"><button id="btnsearchpart" type="button" class="btn  btn-primary"><i class="fa fa-search"></i></button> </div> 
+                      <div style="float:right;">
+                          <button id="btnsearchpart2" type="button" class="btn btn-info btn-sm" title="选择从当前位置"><i class="fa fa-search"></i></button>
+                          <button id="btnsearchpart" type="button" class="btn  btn-primary btn-sm" title="选择-建议注塑部使用"><i class="fa fa-list-alt"></i></button>
+                      
+                         </div> 
                         
                         
                         

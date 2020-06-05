@@ -1,0 +1,4 @@
+﻿已在 E:\OpenSource\NFine快速开发框架\NFine修改\MyNewFine 中为你创建新的 GIT 存储库。
+正在打开存储库:
+E:\OpenSource\NFine快速开发框架\NFine修改\MyNewFine
+已在存储库 E:\OpenSource\NFine快速开发框架\NFine修改\MyNewFine 中本地创建提交 806eb8b9

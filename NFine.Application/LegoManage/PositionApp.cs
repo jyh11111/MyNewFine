@@ -45,7 +45,7 @@ namespace NFine.Application.LegoManage
             service.Delete(c => c.F_Id == keyValue);
         }
 
-        public void UpdateForm(PositionEntity  entity)
+        public void UpdateForm(PositionEntity entity)
         {
             service.Update(entity);
         }

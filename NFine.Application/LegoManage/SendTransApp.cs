@@ -132,8 +132,8 @@ namespace NFine.Application.LegoManage
         /// <returns></returns>
         public bool CheckSubmit(SendTransEntity entity)
         {
-            //0.若是注塑车间则返回True;
-            if (entity.FromPostionId.ToLower() == "acf940bf-5386-4ef8-8285-3f84ca41899a")
+            //0.若是注塑车间则返回True; 或者是洪嘉注塑车间
+            if (entity.FromPostionId.ToLower() == "acf940bf-5386-4ef8-8285-3f84ca41899a" || entity.FromPostionId.ToLower() == "1d50cab4-237d-4742-a508-b46736f69da4")
                 return true;
             //1.先将发出部门的数据进行一下统计
             string deptid = entity.FromOrganizeId;
